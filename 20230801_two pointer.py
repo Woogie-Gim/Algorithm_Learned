@@ -248,7 +248,7 @@ arr.sort()
 cnt = 0
 s = 0
 e = n -1
-for i in rnage(n)[::-1]:
+for i in range(n)[::-1]:
     if arr[i] == m:
         cnt += 1
         e = i -1
