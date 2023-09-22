@@ -1,0 +1,348 @@
+#include<stdio.h>
+#include<Windows.h>
+#include <stdlib.h>
+#include<conio.h>
+#include <time.h>
+int score = 0;
+char map[20][11] =
+{
+	"#        #",
+	"#        #",
+	"#        #",
+	"#        #",
+	"#        #",
+	"#        #",
+	"#        #",
+	"#        #",
+	"#        #",
+	"#        #",
+	"#        #",
+	"#        #",
+	"#        #",
+	"#        #",
+	"#        #",
+	"#        #",
+	"#        #",
+	"#        #",
+	"#        #",
+	"##########"
+};
+
+
+
+int obj[4][4] =
+{
+	1,1,1,0,
+	0,0,1,0,
+	0,0,0,0,
+	0,0,0,0
+};
+
+
+int block1[4][4] =
+{
+	1,1,1,1,
+	0,0,0,0,
+	0,0,0,0,
+	0,0,0,0
+};
+int block2[4][4] =
+{
+	1,1,0,0,
+	0,1,1,0,
+	0,0,0,0,
+	0,0,0,0
+};
+int block3[4][4] =
+{
+	1,1,1,0,
+	1,0,0,0,
+	0,0,0,0,
+	0,0,0,0
+};
+int block4[4][4] =
+{
+	0,1,0,0,
+	1,1,1,0,
+	0,0,0,0,
+	0,0,0,0
+};
+int block5[4][4] =
+{
+	1,1,0,0,
+	1,1,0,0,
+	0,0,0,0,
+	0,0,0,0
+};
+
+int dy = 1, dx = 3;
+char resultmap[20][11];
+void pull() {
+	int x, y, dx = -1, dy = -1;
+	int data[4][4] = { 0 };
+	for (y = 0; y < 4; y++) {
+		for (x = 0; x < 4; x++) {
+			if (obj[y][x] == 1) {
+				dy = y;
+				break;
+			}
+		}
+		if (dy != -1) {
+			break;
+		}
+	}
+	for (x = 0; x < 4; x++) {
+		for (y = 0; y < 4; y++) {
+			if (obj[y][x] == 1) {
+				dx = x;
+				break;
+			}
+		}
+		if (dx != -1) {
+			break;
+		}
+	}
+	for (y = dy; y < 4; y++) {
+		for (x = dx; x < 4; x++) {
+			data[y - dy][x - dx] = obj[y][x];
+		}
+	}
+	for (y = 0; y < 4; y++) {
+		for (x = 0; x < 4; x++) {
+			obj[y][x] = data[y][x];
+		}
+	}
+}
+void Spin() {
+	int x, y;
+	int result[4][4] = { 0 };
+	for (y = 0; y < 4; y++) {
+		for (x = 0; x < 4; x++) {
+			if (obj[y][x] == 1) {
+				result[x][3 - y] = obj[y][x];
+			}
+		}
+	}
+	for (y = 0; y < 4; y++) {
+		for (x = 0; x < 4; x++) {
+			obj[y][x] = result[y][x];
+		}
+	}
+}
+void BlockArrive() {
+	int x, y;
+	for (y = 0; y < 4; y++) {
+		for (x = 0; x < 4; x++) {
+			if (obj[y][x] == 1) {
+				map[dy + y][dx + x] = '@';
+			}
+		}
+	}
+}
+void CopyBlock() {
+	int x, y;
+	for (y = 0; y < 20; y++) {
+		for (x = 0; x < 10; x++) {
+			resultmap[y][x] = map[y][x];
+		}
+	}
+	for (y = 0; y < 4; y++) {
+		for (x = 0; x < 4; x++) {
+			if (obj[y][x] == 1) {
+				resultmap[dy + y][dx + x] = '@';
+			}
+		}
+	}
+
+}
+void print() {
+	system("cls");
+	int x, y;
+	for (y = 0; y < 20; y++) {
+		for (x = 0; x < 10; x++) {
+			if (resultmap[y][x] == ' ') printf("  ");
+			else if (resultmap[y][x] == '#') printf("□");
+			else if (resultmap[y][x] == '@') printf("■");
+		}
+		printf("\n");
+	}
+	printf("SCORE : %d", score);
+}
+int isTouch(int by, int bx) {
+	int x, y;
+	for (y = 0; y < 4; y++) {
+		for (x = 0; x < 4; x++) {
+			if (obj[y][x] == 1) {
+				if (map[by + y][bx + x] == '#' || map[by + y][bx + x] == '@') {
+					return 1;
+				}
+			}
+		}
+	}
+	return 0;
+}
+int isFull(int now) {
+	int x;
+	for (x = 0; x < 10; x++) {
+		if (map[now][x] == ' ')return 0;
+	}
+	return 1;
+}
+void Arrange() {
+	int y, flag = 0, ay, ax;
+	int now = 18; //지금 검사할 라인
+	for (y = 0; y < 20; y++) {
+		if (isFull(now) == 1) {   //1. now번째 줄이 모두 꽉 찼는지 검사
+			score++;
+			for (ay = now; ay > 0; ay--) {   //2. 꽉찼다면 한줄씩 전부 copy
+				for (ax = 0; ax < 10; ax++) {
+					map[ay][ax] = map[ay - 1][ax];
+				}
+			}
+			for (ax = 1; ax < 9; ax++) {   //3. 맨 윗줄 빈칸으로 초기화
+				map[0][ax] = ' ';
+			}
+		}
+		else {   //만약 now번째 줄이 꽉 안찼다면 now--
+			now--;
+			if (now < 0)break;
+		}
+	}
+}
+void Up() {
+	Spin();
+	pull();
+	if (isTouch(dy, dx) == 1) {
+		Spin();
+		Spin();
+		Spin();
+		pull();
+	}
+	CopyBlock();
+}
+void blockChange()
+{
+
+	int randValue = rand() % 5;	//stdlib.h 의 내부함수(0~4값을 랜덤하게 전송)
+	int x, y;
+
+	if (randValue == 0)
+	{
+		for (y = 0; y < 4; y++)
+		{
+			for (x = 0; x < 4; x++)
+			{
+				obj[y][x] = block1[y][x];
+			}
+		}
+	}
+	else if (randValue == 1)
+	{
+		for (y = 0; y < 4; y++)
+		{
+			for (x = 0; x < 4; x++)
+			{
+				obj[y][x] = block2[y][x];
+			}
+		}
+	}
+	else if (randValue == 2)
+	{
+		for (y = 0; y < 4; y++)
+		{
+			for (x = 0; x < 4; x++)
+			{
+				obj[y][x] = block3[y][x];
+			}
+		}
+	}
+	else if (randValue == 3)
+	{
+		for (y = 0; y < 4; y++)
+		{
+			for (x = 0; x < 4; x++)
+			{
+				obj[y][x] = block4[y][x];
+			}
+		}
+	}
+	else if (randValue == 4)
+	{
+		for (y = 0; y < 4; y++)
+		{
+			for (x = 0; x < 4; x++)
+			{
+				obj[y][x] = block5[y][x];
+			}
+		}
+	}
+}
+
+void Down() {
+	if (isTouch(dy + 1, dx) == 0) {
+		dy++;
+	}
+	else {
+		BlockArrive();
+		dy = 0;
+		dx = 1;
+		Arrange();
+		blockChange();
+	}
+}
+void Right() {
+	if (isTouch(dy, dx + 1) == 0) {
+		dx++;
+	}
+}
+void Left() {
+	if (isTouch(dy, dx - 1) == 0) {
+		dx--;
+	}
+}
+int main() {
+	system("color 1F");	//콘솔창 가로 세로 길이지정
+	srand(time(NULL)); // 프로그램킬때마다 랜덤값 섞어줌
+	int cnt = 0;
+	while (1) {
+		if (score > 29) {
+			printf("\n\nVICTORY");
+			printf("\n 5초뒤 종료됩니다.");
+			Sleep(5000);
+			break;
+		}
+		cnt++;
+		if (GetAsyncKeyState(VK_UP) & 0x8001) {
+			Up();
+			CopyBlock();
+			print();
+		}
+		if (GetAsyncKeyState(VK_DOWN) & 0x8001) {
+			Down();
+			CopyBlock();
+			print();
+		}
+		if (GetAsyncKeyState(VK_RIGHT) & 0x8001) {
+			Right();
+			CopyBlock();
+			print();
+		}
+		if (GetAsyncKeyState(VK_LEFT) & 0x8001) {
+			Left();
+			CopyBlock();
+			print();
+		}
+		if (GetAsyncKeyState(VK_SPACE) & 0x8001) {
+			BlockArrive();
+			CopyBlock();
+			print();
+		}
+		Sleep(50);
+		if (cnt % 10 == 0) {
+			Down();
+			CopyBlock();
+			print();
+		}
+	}
+	return 0;
+}
