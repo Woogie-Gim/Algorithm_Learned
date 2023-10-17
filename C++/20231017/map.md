@@ -147,3 +147,21 @@ int main()
 ```
 
 ![Alt text](<images/map method.JPG>)
+
+### upper_bound, lower_bound 메서드
+- upper_bound 메서드의 경우 컨테이너의 오른쪽 원소 중 기준 원소보다 큰 값 중 가장 왼쪽에 있는 원소의 iterator 값을 리턴한다.
+- lower_bound 메서드의 경우 오른쪽 원소 중 기준 원소와 같거나 큰 값 중 가장 왼쪽에 있는 원소의 iterator 값을 리턴한다.
+- 차이점은 같은 값을 포함하느냐 마느냐 차이만 있다.
+
+```c++
+mymap['a'] = 20;
+mymap['b'] = 40;
+mymap['c'] = 60;
+mymap['d'] = 80;
+mymap['e'] = 100;
+
+itlow = mymap.lower_bound('b');
+itup = mymap.upper_bound('d');
+
+// 위 코드의 경우 itlow는 b를 itup은 e를 가르키는 iterator가 된다.
+```
